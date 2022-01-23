@@ -8,10 +8,6 @@ inputs:
   url:
     description: 'publicly accessible URL (ex. `https://github.com/kenyonj/actions-uptime.git`)'
     required: true
-  frequency_in_minutes:
-    description: 'An integer value to indicate how many minutes we should wait before the next uptime check (ex. `300` for checking every 5 hours)
-    required: true
-    default: 1440
   yaml_output:
     description: 'A boolean value to indicate whether or not this action will write to a YAML file to keep track of how long the resource has been available'
     required: true
