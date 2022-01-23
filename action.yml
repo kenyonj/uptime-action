@@ -56,15 +56,15 @@ runs:
       if: ${{ inputs.github_token }}
     
     - name: Write last changed YAML
-      run: yq eval '.sites + {"last_changed": "`date +\"%Y-%m-%d %T\"`"}' uptime.yml
+      run: yq eval '.sites + {"last_changed": "$(date +\"%Y-%m-%d %T\")"}' uptime.yml
       if: ${{ inputs.github_token && steps.cache.outputs.cache-hit != 'true' }}
       shell: bash
     - name: Write down since YAML
-      run: yq eval '.sites + {"down_since": "`date +\"%Y-%m-%d %T\"`"}' uptime.yml
+      run: yq eval '.sites + {"down_since": "$(date +\"%Y-%m-%d %T\")"}' uptime.yml
       if: ${{ inputs.github_token && steps.fetch.conclusion != 'success' }}
       shell: bash
     - name: Write up since YAML
-      run: yq eval '.sites + {"up_since": "`date +\"%Y-%m-%d %T\"`"}' uptime.yml
+      run: yq eval '.sites + {"up_since": "$(date +\"%Y-%m-%d %T\")"}' uptime.yml
       if: ${{ inputs.github_token && steps.fetch.conclusion == 'success' }}
       shell: bash
     - name: Write url YAML
