@@ -27,6 +27,7 @@ outputs:
     value: ${{ steps.fetch.conclusion == 'success' }}
   notification_sent:
     description: 'A boolean value to indicate that a notification was sent to the desired services'
+    value: ${{ steps.fetch.conclusion == 'success' }}
 runs:
   using: "composite"
   steps:
