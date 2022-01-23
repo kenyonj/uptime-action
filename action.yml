@@ -51,27 +51,28 @@ runs:
       run: curl -s --form-string "token=${{ inputs.pushover_token }}" --form-string "user=${{ inputs.pushover_user_key }}" --form-string "message=uptime-action has run" https://api.pushover.net/1/messages.json
       if: ${{ inputs.pushover_token && inputs.pushover_user_key }}
       shell: bash
-
-    - uses: chrisdickinson/setup-yq@latest
-      if: ${{ inputs.github_token }}
-    
+        
     - name: Write last changed YAML
-      run: yq e -i '.sites.last_changed = "$(date \"%Y-%m-%d %T\")"' uptime.yml
+      uses: mikefarah/yq@master
+      with:
+        cmd: yq eval -i '.sites.last_changed = "$(date \"%Y-%m-%d %T\")"' 'uptime.yml'
       if: ${{ inputs.github_token && steps.cache.outputs.cache-hit != 'true' }}
-      shell: bash
+
     - name: Write down since YAML
-      run: yq e -i '.sites.down_since = "$(date \"%Y-%m-%d %T\")"' uptime.yml
+      with:
+        cmd: yq eval -i '.sites.down_since = "$(date \"%Y-%m-%d %T\")"' 'uptime.yml'
       if: ${{ inputs.github_token && steps.fetch.conclusion != 'success' }}
-      shell: bash
+
     - name: Write up since YAML
-      run: yq e -i '.sites.up_since = "$(date \"%Y-%m-%d %T\")"' uptime.yml
+      with:
+        cmd: yq eval -i '.sites.up_since = "$(date \"%Y-%m-%d %T\")"' 'uptime.yml'
       if: ${{ inputs.github_token && steps.fetch.conclusion == 'success' }}
-      shell: bash
+
     - name: Write url YAML
-      run: yq e -i '.sites.url = "${{ inputs.url }}"' uptime.yml
+      with:
+        cmd: yq eval -i '.sites.url = "${{ inputs.url }}"' 'uptime.yml'
       if: ${{ inputs.github_token }}
-      shell: bash
-    
+
     - run: git config --local user.email "action@github.com"
       shell: bash
       if: ${{ steps.write-yaml.conclusion == 'success' }}
