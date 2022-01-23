@@ -52,15 +52,25 @@ runs:
       if: ${{ inputs.pushover_token && inputs.pushover_user_key }}
       shell: bash
 
-    - name: Write uptime YAML
-      id: write-yaml
-      uses: DamianReeves/write-file-action
+    - uses: chrisdickinson/setup-yq@latest
       if: ${{ inputs.github_token }}
-      with:
-        path: ${{ github.workspace }}/uptime.yml
-        contents: |
-          echo "Hello World!"
-        write-mode: overwrite
+    
+    - name: Write last changed YAML
+      run: yq eval '.sites + {"last_changed": "`date +\"%Y-%m-%d %T\"`"}' uptime.yml
+      if: ${{ inputs.github_token && steps.cache.outputs.cache-hit != 'true' }}
+      shell: bash
+    - name: Write down since YAML
+      run: yq eval '.sites + {"down_since": "`date +\"%Y-%m-%d %T\"`"}' uptime.yml
+      if: ${{ inputs.github_token && steps.fetch.conclusion != 'success' }}
+      shell: bash
+    - name: Write up since YAML
+      run: yq eval '.sites + {"up_since": "`date +\"%Y-%m-%d %T\"`"}' uptime.yml
+      if: ${{ inputs.github_token && steps.fetch.conclusion == 'success' }}
+      shell: bash
+    - name: Write url YAML
+      run: yq eval '.sites + {"url": "${{ inputs.url }}"}' uptime.yml
+      if: ${{ inputs.github_token }}
+      shell: bash
     
     - run: git config --local user.email "action@github.com"
       shell: bash
