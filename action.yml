@@ -35,8 +35,9 @@ runs:
   using: "composite"
   steps:
     - name: Create uptime.yml if needed
-      run: "[[ ! -f 'uptime.yml' ]] && touch 'uptime.yml'"
+      run: "touch 'uptime.yml'"
       shell: bash
+      if: hashFiles('uptime.yml') == ''
 
     - name: Get current date
       id: date
