@@ -51,23 +51,28 @@ runs:
       run: curl -s --form-string "token=${{ inputs.pushover_token }}" --form-string "user=${{ inputs.pushover_user_key }}" --form-string "message=uptime-action has run" https://api.pushover.net/1/messages.json
       if: ${{ inputs.pushover_token && inputs.pushover_user_key }}
       shell: bash
+      
+    - name: Get current date
+      id: date
+      run: echo "::set-output name=date::$(date +'%Y-%m-%d %T')"
+      shell: bash
         
     - name: Write last changed YAML
       uses: mikefarah/yq@master
       with:
-        cmd: yq eval -i '.sites.last_changed = "$(date \"%Y-%m-%d %T\")"' 'uptime.yml'
+        cmd: yq eval -i '.sites.last_changed = "${{ steps.date.outputs.date }}"' 'uptime.yml'
       if: ${{ inputs.github_token && steps.cache.outputs.cache-hit != 'true' }}
 
     - name: Write down since YAML
       uses: mikefarah/yq@master
       with:
-        cmd: yq eval -i '.sites.down_since = "$(date \"%Y-%m-%d %T\")"' 'uptime.yml'
+        cmd: yq eval -i '.sites.down_since = "${{ steps.date.outputs.date }}"' 'uptime.yml'
       if: ${{ inputs.github_token && steps.fetch.conclusion != 'success' }}
 
     - name: Write up since YAML
       uses: mikefarah/yq@master
       with:
-        cmd: yq eval -i '.sites.up_since = "$(date \"%Y-%m-%d %T\")"' 'uptime.yml'
+        cmd: yq eval -i '.sites.up_since = "${{ steps.date.outputs.date }}"' 'uptime.yml'
       if: ${{ inputs.github_token && steps.fetch.conclusion == 'success' }}
 
     - name: Write url YAML
