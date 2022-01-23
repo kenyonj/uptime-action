@@ -46,6 +46,10 @@ runs:
         path: data.json
         key: ${{ hashFiles('data.json') }}
 
+    - name: Create uptime.yml if needed
+      run: "[ -f ${{ github.workspaces }}/uptime.yml ] && touch ${{ github.workspace }}/uptime.yml"
+      shell: bash
+
     - name: Pushover Notification
       id: pushover-notification
       run: curl -s --form-string "token=${{ inputs.pushover_token }}" --form-string "user=${{ inputs.pushover_user_key }}" --form-string "message=uptime-action has run" https://api.pushover.net/1/messages.json
@@ -60,25 +64,25 @@ runs:
     - name: Write last changed YAML
       uses: mikefarah/yq@master
       with:
-        cmd: yq eval -i -n '.sites.last_changed = "${{ steps.date.outputs.date }}"' 'uptime.yml'
+        cmd: yq eval -i '.sites.last_changed = "${{ steps.date.outputs.date }}"' '${{ github.workspace }}/uptime.yml'
       if: ${{ inputs.github_token && steps.cache.outputs.cache-hit != 'true' }}
 
     - name: Write down since YAML
       uses: mikefarah/yq@master
       with:
-        cmd: yq eval -i -n '.sites.down_since = "${{ steps.date.outputs.date }}"' 'uptime.yml'
+        cmd: yq eval -i '.sites.down_since = "${{ steps.date.outputs.date }}"' '${{ github.workspace }}/uptime.yml'
       if: ${{ inputs.github_token && steps.fetch.conclusion != 'success' }}
 
     - name: Write up since YAML
       uses: mikefarah/yq@master
       with:
-        cmd: yq eval -i -n '.sites.up_since = "${{ steps.date.outputs.date }}"' 'uptime.yml'
+        cmd: yq eval -i '.sites.up_since = "${{ steps.date.outputs.date }}"' '${{ github.workspace }}/uptime.yml'
       if: ${{ inputs.github_token && steps.fetch.conclusion == 'success' }}
 
     - name: Write url YAML
       uses: mikefarah/yq@master
       with:
-        cmd: yq eval -i -n '.sites.url = "${{ inputs.url }}"' 'uptime.yml'
+        cmd: yq eval -i '.sites.url = "${{ inputs.url }}"' '${{ github.workspace }}/uptime.yml'
       if: ${{ inputs.github_token }}
 
     - run: git config --local user.email "action@github.com"
