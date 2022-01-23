@@ -13,10 +13,10 @@ inputs:
     required: true
     default: true
   pushover_user_key:
-    description: 'A string value for your pushover user key, use secrets to protect this information (ex. `${{ secrets.PUSHOVER_USER_KEY }}`'
+    description: 'A string value for your pushover user key, use secrets to protect this information'
     required: false
   pushover_token:
-    description: 'A string value for your pushover token, use secrets to protect this information (ex. `${{ secrets.PUSHOVER_TOKEN }}`'
+    description: 'A string value for your pushover token, use secrets to protect this information'
     required: false
 outputs:
   change_detected:
