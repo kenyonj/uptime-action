@@ -47,7 +47,7 @@ runs:
         key: ${{ hashFiles('data.json') }}
 
     - name: Create uptime.yml if needed
-      run: "[[ ! -f '${{ github.workspace }}/uptime.yml' ]] && touch '${{ github.workspace }}/uptime.yml'"
+      run: "[[ ! -f 'uptime.yml' ]] && touch 'uptime.yml'"
       shell: bash
 
     - name: Pushover Notification
