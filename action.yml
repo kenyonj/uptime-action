@@ -18,6 +18,9 @@ inputs:
   pushover_token:
     description: 'A string value for your pushover token, use secrets to protect this information'
     required: false
+  github_token:
+    description: 'The GitHub token to use for updating uptime.yml file'
+    required: false
 outputs:
   change_detected:
     description: 'A boolean value to indicate that a change was detected on the resource'
@@ -50,7 +53,9 @@ runs:
       shell: bash
 
     - name: Write uptime YAML
+      id: write-yaml
       uses: DamianReeves/write-file-action
+      if: ${{ inputs.github_token }}
       with:
         path: ${{ github.workspace }}/uptime.yml
         contents: |
@@ -58,9 +63,19 @@ runs:
         write-mode: overwrite
     
     - run: git config --local user.email "action@github.com"
+      shell: bash
+      if: ${{ steps.write-yaml.conclusion == 'success' }}
     - run: git config --local user.name "GitHub Action"
+      shell: bash
+      if: ${{ steps.write-yaml.conclusion == 'success' }}
     - run: git add .
+      shell: bash
+      if: ${{ steps.write-yaml.conclusion == 'success' }}
     - run: git commit -m "Uptime file updated"
+      shell: bash
+      if: ${{ steps.write-yaml.conclusion == 'success' }}
     - run: "git push https://x-access-token:${GITHUB_TOKEN}@github.com/${GITHUB_REPOSITORY}.git HEAD"
+      shell: bash
+      if: ${{ steps.write-yaml.conclusion == 'success' }}
       env:
-        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        GITHUB_TOKEN: ${{ inputs.github_token }}
