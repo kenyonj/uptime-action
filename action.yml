@@ -87,18 +87,13 @@ runs:
 
     - run: git config --local user.email "action@github.com"
       shell: bash
-      if: ${{ steps.write-yaml.conclusion == 'success' }}
     - run: git config --local user.name "GitHub Action"
       shell: bash
-      if: ${{ steps.write-yaml.conclusion == 'success' }}
     - run: git add .
       shell: bash
-      if: ${{ steps.write-yaml.conclusion == 'success' }}
     - run: git commit -m "Uptime file updated"
       shell: bash
-      if: ${{ steps.write-yaml.conclusion == 'success' }}
     - run: "git push https://x-access-token:${GITHUB_TOKEN}@github.com/${GITHUB_REPOSITORY}.git HEAD"
       shell: bash
-      if: ${{ steps.write-yaml.conclusion == 'success' }}
       env:
         GITHUB_TOKEN: ${{ inputs.github_token }}
