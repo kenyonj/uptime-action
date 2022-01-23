@@ -27,10 +27,10 @@ outputs:
     value: ${{ steps.cache.outputs.cache-hit == 'true' }}
   resource_is_available:
     description: 'A boolean value to indicate that the resource is up and responding to GET requests'
-    value: ${{ steps.fetch.conclusion == 'success' }}
+    value: ${{ steps.write-down-since.outputs.fetch-failure == 'true' }}
   notification_sent:
     description: 'A boolean value to indicate that a notification was sent to the desired services'
-    value: ${{ steps.pushover-notification.conclusion == 'success' }}
+    value: ${{ steps.pushover-notification.outputs.notification-sent == 'true' }}
 runs:
   using: "composite"
   steps:
@@ -51,10 +51,12 @@ runs:
       
     - name: Write down since YAML
       uses: mikefarah/yq@master
+      id: write-down-since
       with:
         cmd: |
           yq eval -i '.sites.down_since = "${{ steps.date.outputs.date }}"' 'uptime.yml' &&\
-          yq eval -i '.sites.up_since = ""' 'uptime.yml'
+          yq eval -i '.sites.up_since = ""' 'uptime.yml' &&\
+          echo "::set-output name=fetch-failure::true"
       if: failure()
 
     - name: Write down since YAML
@@ -80,7 +82,12 @@ runs:
 
     - name: Pushover Notification
       id: pushover-notification
-      run: curl -s --form-string "token=${{ inputs.pushover_token }}" --form-string "user=${{ inputs.pushover_user_key }}" --form-string "message=uptime-action has run" https://api.pushover.net/1/messages.json
+      run: |
+        curl -s --form-string "token=${{ inputs.pushover_token }}" \
+        --form-string "user=${{ inputs.pushover_user_key }}" \
+        --form-string "message=uptime-action has run" \
+        https://api.pushover.net/1/messages.json &&\
+        echo "::set-output name=notification-sent::true"
       if: ${{ inputs.pushover_token && inputs.pushover_user_key }}
       shell: bash
 
