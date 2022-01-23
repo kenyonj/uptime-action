@@ -47,5 +47,5 @@ runs:
 
     - name: Pushover Notification
       id: pushover-notification
-      run: curl -s --form-string "token=${{ inputs.pushover_token }}" --form-string "user=${{ inputs.pushover_user_key }}" --form-string "message=$NOTIFICATION_MESSAGE" https://api.pushover.net/1/messages.json
+      run: curl -s --form-string "token=${{ inputs.pushover_token }}" --form-string "user=${{ inputs.pushover_user_key }}" --form-string "message=uptime-action has run" https://api.pushover.net/1/messages.json
       if: ${{ inputs.pushover_token && inputs.pushover_user_key }}
