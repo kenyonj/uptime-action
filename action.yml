@@ -33,6 +33,7 @@ runs:
     - name: Fetch data
       id: fetch
       run: curl "${{ inputs.url }}" -o data.json
+      shell: bash
 
     - name: Fetch Cache
       id: cache
@@ -45,3 +46,4 @@ runs:
       id: pushover-notification
       run: curl -s --form-string "token=${{ inputs.pushover_token }}" --form-string "user=${{ inputs.pushover_user_key }}" --form-string "message=uptime-action has run" https://api.pushover.net/1/messages.json
       if: ${{ inputs.pushover_token && inputs.pushover_user_key }}
+      shell: bash
