@@ -37,7 +37,7 @@ runs:
     - name: Create uptime.yml if needed
       run: "touch 'uptime.yml'"
       shell: bash
-      if: hashFiles('uptime.yml') == ''
+      if: ${{ inputs.yaml_output && hashFiles('uptime.yml') == '' }}
 
     - name: Get current date
       id: date
@@ -57,7 +57,7 @@ runs:
           yq eval -i '.sites.down_since = "${{ steps.date.outputs.date }}"' 'uptime.yml' &&\
           yq eval -i '.sites.up_since = ""' 'uptime.yml' &&\
           echo "::set-output name=fetch-failure::true"
-      if: failure()
+      if: ${{ inputs.yaml_output && failure() }}
 
     - name: Write down since YAML
       uses: mikefarah/yq@master
@@ -65,7 +65,7 @@ runs:
         cmd: |
           yq eval -i '.sites.last_successful_response = "${{ steps.date.outputs.date }}"' 'uptime.yml' &&\
           yq eval -i '.sites.down_since = ""' 'uptime.yml'
-      if: success()
+      if: ${{ inputs.yaml_output && success() }}
 
     - name: Fetch Cache
       id: cache
@@ -78,7 +78,7 @@ runs:
       uses: mikefarah/yq@master
       with:
         cmd: yq eval -i '.sites.last_changed = "${{ steps.date.outputs.date }}"' 'uptime.yml'
-      if: ${{ inputs.github_token && steps.cache.outputs.cache-hit != 'true' }}
+      if: ${{ inputs.yaml_output && steps.cache.outputs.cache-hit != 'true' }}
 
     - name: Pushover Notification
       id: pushover-notification
@@ -95,13 +95,13 @@ runs:
       uses: mikefarah/yq@master
       with:
         cmd: yq eval -i '.sites.url = "${{ inputs.url }}"' 'uptime.yml'
-      if: ${{ inputs.github_token }}
+      if: ${{ inputs.yaml_output }}
 
     - run: git config --local user.email "action@github.com"
       shell: bash
     - run: git config --local user.name "GitHub Action"
       shell: bash
-    - run: git add .
+    - run: git add uptime.yml
       shell: bash
     - run: git commit -m "Uptime file updated"
       shell: bash
